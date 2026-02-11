@@ -1,0 +1,22 @@
+{
+  "inference_response": {
+    "hide_id": "hide_new_001",
+    "serial_number": "LH-2026-00250",
+    "predicted_grade": "C",
+    "confidence": 0.82,
+    "grade_probabilities": {
+      "B": 0.08,
+      "C": 0.82,
+      "D": 0.07,
+      "E": 0.02,
+      "EN": 0.01
+    },
+    "defects_analyzed": [
+      {"type": "scratch", "x": 120, "y": 340, "severity": "minor"},
+      {"type": "tick_mark", "x": 450, "y": 210, "severity": "minor"},
+      {"type": "vein_mark", "x": 200, "y": 150, "severity": "moderate"}
+    ],
+    "model_version": "v0.1.0",
+    "inferred_at": "2026-02-10T14:30:00Z"
+  }
+}
