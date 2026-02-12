@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from routes import projects, datasets, train, inference
+from database import init_db
+from routes import projects, datasets, train, inference, sessions, rows
 
 app = FastAPI(
     title="Grade Ninja API",
@@ -25,6 +26,10 @@ app.include_router(projects.router)
 app.include_router(datasets.router)
 app.include_router(train.router)
 app.include_router(inference.router)
+app.include_router(sessions.router)
+app.include_router(rows.router)
+
+init_db()
 
 
 @app.get("/", tags=["health"], summary="Health check")

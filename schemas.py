@@ -116,6 +116,63 @@ class TrainStatus(BaseModel):
     model_version: str = Field(example="v0.1.0")
 
 
+# --- Sessions ---
+
+class SessionCreate(BaseModel):
+    name: str
+    date: str | None = None
+    status: str = "Configured"
+    grades: list[GradeConfig] | None = None
+    gradeCount: int | None = None
+    targetColumn: str | None = None
+    featureColumns: list[str] = []
+    datasetFilename: str | None = None
+
+
+class SessionUpdate(BaseModel):
+    name: str | None = None
+    date: str | None = None
+    status: str | None = None
+    grades: list[GradeConfig] | None = None
+    gradeCount: int | None = None
+    targetColumn: str | None = None
+    featureColumns: list[str] | None = None
+    datasetFilename: str | None = None
+    rowCount: int | None = None
+    labeledCount: int | None = None
+
+
+class SessionResponse(BaseModel):
+    id: int
+    name: str
+    date: str
+    status: str
+    grades: list[GradeConfig]
+    gradeCount: int
+    targetColumn: str | None
+    featureColumns: list[str]
+    datasetFilename: str | None
+    rowCount: int
+    labeledCount: int
+    createdAt: str
+
+
+class RowsBulkCreate(BaseModel):
+    rows: list[dict]
+
+
+class RowUpdate(BaseModel):
+    targetColumn: str | None = None
+    data: dict | None = None
+
+
+class RowResponse(BaseModel):
+    id: int
+    sessionId: int
+    targetColumn: str
+    # remaining CSV columns are merged at top level via dict
+
+
 # --- Inference ---
 
 class InferenceRequest(BaseModel):
