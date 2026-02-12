@@ -73,26 +73,29 @@ class DatasetCreate(BaseModel):
 
 # --- Train ---
 
+class GradeConfig(BaseModel):
+    id: int = Field(example=1)
+    name: str = Field(example="A")
+    color: str = Field(example="#00b894")
+
+
 class TrainRequest(BaseModel):
-    project_id: str = Field(example="proj_001")
-    dataset_id: str = Field(example="ds_001")
+    sessionId: int = Field(example=1)
+    targetColumn: str = Field(example="grade")
+    featureColumns: list[str] = Field(example=["count_br", "count_ct"])
+    grades: list[GradeConfig]
+    rows: list[dict]
 
 
 class TrainResponse(BaseModel):
     job_id: str = Field(example="train_job_001")
     status: str = Field(example="running")
-    project_id: str = Field(example="proj_001")
-    dataset_id: str = Field(example="ds_001")
+    sessionId: int = Field(example=1)
     created_at: str = Field(example="2026-02-10T12:00:00Z")
     message: str = Field(example="Training job started successfully")
 
 
-class ConfusionMatrix(BaseModel):
-    B: dict[str, int] = Field(example={"B": 42, "C": 3, "D": 0, "E": 0, "EN": 0})
-    C: dict[str, int] = Field(example={"B": 2, "C": 38, "D": 4, "E": 1, "EN": 0})
-    D: dict[str, int] = Field(example={"B": 0, "C": 3, "D": 35, "E": 5, "EN": 2})
-    E: dict[str, int] = Field(example={"B": 0, "C": 0, "D": 4, "E": 30, "EN": 6})
-    EN: dict[str, int] = Field(example={"B": 0, "C": 0, "D": 1, "E": 3, "EN": 21})
+ConfusionMatrix = dict[str, dict[str, int]]
 
 
 class TrainMetrics(BaseModel):
@@ -106,8 +109,7 @@ class TrainMetrics(BaseModel):
 class TrainStatus(BaseModel):
     job_id: str = Field(example="train_job_001")
     status: str = Field(example="completed")
-    project_id: str = Field(example="proj_001")
-    dataset_id: str = Field(example="ds_001")
+    sessionId: int = Field(example=1)
     created_at: str = Field(example="2026-02-10T12:00:00Z")
     completed_at: str = Field(example="2026-02-10T12:05:30Z")
     metrics: TrainMetrics
