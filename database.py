@@ -49,6 +49,12 @@ def init_db():
     """)
     db.commit()
 
+    # Migrate: add train_result column if missing
+    cols = [row[1] for row in db.execute("PRAGMA table_info(sessions)").fetchall()]
+    if "train_result" not in cols:
+        db.execute("ALTER TABLE sessions ADD COLUMN train_result TEXT")
+        db.commit()
+
     # Seed with mock data if tables are empty
     count = db.execute("SELECT COUNT(*) FROM sessions").fetchone()[0]
     if count == 0:
