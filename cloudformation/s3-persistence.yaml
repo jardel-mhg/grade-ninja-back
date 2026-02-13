@@ -60,7 +60,7 @@ Resources:
             ConfigurationSource: API
             CodeConfigurationValues:
               Runtime: PYTHON_311
-              BuildCommand: pip install -r requirements.txt
+              BuildCommand: pip3 install -r requirements.txt
               StartCommand: python3 main.py
               Port: '8000'
               RuntimeEnvironmentVariables:
