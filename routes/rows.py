@@ -9,11 +9,12 @@ router = APIRouter(prefix="/api/sessions/{session_id}/rows", tags=["rows"])
 
 def _row_to_dict(row) -> dict:
     data = json.loads(row["data"])
+    # Spread data first, then override with DB columns so they always win
     return {
+        **data,
         "id": row["id"],
         "sessionId": row["session_id"],
         "targetColumn": row["target_column"],
-        **data,
     }
 
 
@@ -60,7 +61,9 @@ def bulk_create_rows(session_id: int, body: RowsBulkCreate):
     params = []
     for row in body.rows:
         target_value = row.get("targetColumn", row.get(target_col, "")) if target_col else row.get("targetColumn", "")
-        params.append((session_id, target_value or "", json.dumps(row)))
+        # Strip frontend-internal keys from the data JSON — they live in DB columns
+        clean = {k: v for k, v in row.items() if k not in ("targetColumn", "sessionId")}
+        params.append((session_id, target_value or "", json.dumps(clean)))
 
     db.executemany(
         "INSERT INTO dataset_rows (session_id, target_column, data) VALUES (?, ?, ?)",

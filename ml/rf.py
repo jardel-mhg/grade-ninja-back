@@ -1,10 +1,12 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 
 
-def train_random_forest(df: pd.DataFrame, target_column: str, feature_columns: list[str]) -> dict:
+def train_random_forest(
+    df: pd.DataFrame, target_column: str, feature_columns: list[str]
+) -> dict:
     """Train a Random Forest classifier and return accuracy.
 
     Returns dict with: accuracy, train_size, test_size
@@ -20,19 +22,38 @@ def train_random_forest(df: pd.DataFrame, target_column: str, feature_columns: l
     # Need at least 2 samples per class for stratified split
     min_split = max(2, int(len(y) * 0.2))
     if len(y) < 5 or y.nunique() < 2:
-        raise ValueError(f"Not enough data to train: {len(y)} rows, {y.nunique()} classes")
+        raise ValueError(
+            f"Not enough data to train: {len(y)} rows, {y.nunique()} classes"
+        )
 
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42, stratify=y
     )
 
     rf = RandomForestClassifier(
-        n_estimators=1000, random_state=42, n_jobs=-1, class_weight="balanced"
+        n_estimators=1000,
+        random_state=42,
+        n_jobs=-1,
+        class_weight="balanced",
+        verbose=1,
     )
     rf.fit(X_train, y_train)
 
     y_pred = rf.predict(X_test)
     acc = accuracy_score(y_test, y_pred)
+
+    # Evaluation
+    print("\n" + "=" * 50)
+    print("RANDOM FOREST RESULTS")
+    print("=" * 50)
+
+    print(f"\nAccuracy: {accuracy_score(y_test, y_pred):.4f}")
+
+    print("\nConfusion Matrix:")
+    print(confusion_matrix(y_test, y_pred))
+
+    print("\nClassification Report:")
+    print(classification_report(y_test, y_pred))
 
     return {
         "accuracy": round(acc, 4),
