@@ -33,6 +33,7 @@ def init_db():
             dataset_filename TEXT,
             row_count INTEGER NOT NULL DEFAULT 0,
             labeled_count INTEGER NOT NULL DEFAULT 0,
+            train_result TEXT,
             created_at TEXT NOT NULL
         );
 

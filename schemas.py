@@ -87,33 +87,42 @@ class TrainRequest(BaseModel):
     rows: list[dict]
 
 
+class ClassMetrics(BaseModel):
+    precision: float = Field(example=0.85)
+    recall: float = Field(example=0.83)
+    f1_score: float = Field(example=0.84)
+    support: int = Field(example=42)
+
+
+class TrainResultMetrics(BaseModel):
+    accuracy: float = Field(example=0.87)
+    precision: float = Field(example=0.85)
+    recall: float = Field(example=0.83)
+    f1_score: float = Field(example=0.84)
+    confusionMatrix: dict[str, dict[str, int]]
+    classificationReport: dict[str, ClassMetrics]
+    featureImportances: dict[str, float]
+    targetDistribution: dict[str, int]
+    trainSize: int = Field(example=80)
+    testSize: int = Field(example=20)
+
+
 class TrainResponse(BaseModel):
     job_id: str = Field(example="train_job_001")
     status: str = Field(example="running")
     sessionId: int = Field(example=1)
     created_at: str = Field(example="2026-02-10T12:00:00Z")
     message: str = Field(example="Training job started successfully")
+    metrics: TrainResultMetrics | None = None
 
 
-ConfusionMatrix = dict[str, dict[str, int]]
+class PredictRequest(BaseModel):
+    featureColumns: list[str]
+    rows: list[dict]
 
 
-class TrainMetrics(BaseModel):
-    accuracy: float = Field(example=0.87)
-    precision: float = Field(example=0.85)
-    recall: float = Field(example=0.83)
-    f1_score: float = Field(example=0.84)
-    confusion_matrix: ConfusionMatrix
-
-
-class TrainStatus(BaseModel):
-    job_id: str = Field(example="train_job_001")
-    status: str = Field(example="completed")
-    sessionId: int = Field(example=1)
-    created_at: str = Field(example="2026-02-10T12:00:00Z")
-    completed_at: str = Field(example="2026-02-10T12:05:30Z")
-    metrics: TrainMetrics
-    model_version: str = Field(example="v0.1.0")
+class PredictResponse(BaseModel):
+    predictions: list[str]
 
 
 # --- Sessions ---
@@ -140,6 +149,7 @@ class SessionUpdate(BaseModel):
     datasetFilename: str | None = None
     rowCount: int | None = None
     labeledCount: int | None = None
+    trainResult: dict | None = None
 
 
 class SessionResponse(BaseModel):
@@ -154,6 +164,7 @@ class SessionResponse(BaseModel):
     datasetFilename: str | None
     rowCount: int
     labeledCount: int
+    trainResult: dict | None = None
     createdAt: str
 
 

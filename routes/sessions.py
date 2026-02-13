@@ -16,6 +16,9 @@ DEFAULT_GRADES = [
 
 
 def _row_to_session(row) -> dict:
+    train_result_raw = row["train_result"]
+    train_result = json.loads(train_result_raw) if train_result_raw else None
+
     return SessionResponse(
         id=row["id"],
         name=row["name"],
@@ -28,6 +31,7 @@ def _row_to_session(row) -> dict:
         datasetFilename=row["dataset_filename"],
         rowCount=row["row_count"],
         labeledCount=row["labeled_count"],
+        trainResult=train_result,
         createdAt=row["created_at"],
     ).model_dump()
 
@@ -101,6 +105,7 @@ def update_session(session_id: int, body: SessionUpdate):
         "datasetFilename": "dataset_filename",
         "rowCount": "row_count",
         "labeledCount": "labeled_count",
+        "trainResult": "train_result",
     }
 
     set_parts = []
@@ -111,6 +116,8 @@ def update_session(session_id: int, body: SessionUpdate):
             if camel == "grades":
                 val = json.dumps([g.model_dump() if hasattr(g, "model_dump") else g for g in val])
             elif camel == "featureColumns":
+                val = json.dumps(val)
+            elif camel == "trainResult" and val is not None:
                 val = json.dumps(val)
             set_parts.append(f"{snake} = ?")
             values.append(val)

@@ -7,9 +7,11 @@ from sklearn.metrics import accuracy_score, confusion_matrix, classification_rep
 def train_random_forest(
     df: pd.DataFrame, target_column: str, feature_columns: list[str]
 ) -> dict:
-    """Train a Random Forest classifier and return accuracy.
+    """Train a Random Forest classifier and return model + full metrics.
 
-    Returns dict with: accuracy, train_size, test_size
+    Returns dict with: model, accuracy, train_size, test_size,
+    confusion_matrix, classification_report, feature_importances,
+    target_distribution
     """
     X = df[feature_columns].apply(pd.to_numeric, errors="coerce")
     y = df[target_column]
@@ -20,7 +22,6 @@ def train_random_forest(
     y = y.loc[valid]
 
     # Need at least 2 samples per class for stratified split
-    min_split = max(2, int(len(y) * 0.2))
     if len(y) < 5 or y.nunique() < 2:
         raise ValueError(
             f"Not enough data to train: {len(y)} rows, {y.nunique()} classes"
@@ -42,21 +43,60 @@ def train_random_forest(
     y_pred = rf.predict(X_test)
     acc = accuracy_score(y_test, y_pred)
 
+    # Confusion matrix as {actual: {predicted: count}}
+    labels = sorted(y.unique())
+    cm = confusion_matrix(y_test, y_pred, labels=labels)
+    cm_dict = {}
+    for i, actual in enumerate(labels):
+        cm_dict[str(actual)] = {
+            str(labels[j]): int(cm[i][j]) for j in range(len(labels))
+        }
+
+    # Classification report as per-class dict
+    report = classification_report(y_test, y_pred, labels=labels, output_dict=True)
+
+    # Feature importances
+    importances = {
+        col: round(float(imp), 4)
+        for col, imp in zip(feature_columns, rf.feature_importances_)
+    }
+
+    # Target distribution in training data
+    dist = y.value_counts().to_dict()
+    target_dist = {str(k): int(v) for k, v in dist.items()}
+
+    # Weighted averages from report
+    weighted = report.get("weighted avg", {})
+
     # Evaluation
     print("\n" + "=" * 50)
     print("RANDOM FOREST RESULTS")
     print("=" * 50)
-
-    print(f"\nAccuracy: {accuracy_score(y_test, y_pred):.4f}")
-
+    print(f"\nAccuracy: {acc:.4f}")
     print("\nConfusion Matrix:")
-    print(confusion_matrix(y_test, y_pred))
-
+    print(cm)
     print("\nClassification Report:")
-    print(classification_report(y_test, y_pred))
+    print(classification_report(y_test, y_pred, labels=labels))
 
     return {
+        "model": rf,
         "accuracy": round(acc, 4),
+        "precision": round(weighted.get("precision", 0), 4),
+        "recall": round(weighted.get("recall", 0), 4),
+        "f1_score": round(weighted.get("f1-score", 0), 4),
         "train_size": len(X_train),
         "test_size": len(X_test),
+        "confusion_matrix": cm_dict,
+        "classification_report": {
+            k: {
+                "precision": round(v.get("precision", 0), 4),
+                "recall": round(v.get("recall", 0), 4),
+                "f1_score": round(v.get("f1-score", 0), 4),
+                "support": int(v.get("support", 0)),
+            }
+            for k, v in report.items()
+            if k not in ("accuracy", "macro avg", "weighted avg")
+        },
+        "feature_importances": importances,
+        "target_distribution": target_dist,
     }
