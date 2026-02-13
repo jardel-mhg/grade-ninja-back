@@ -60,8 +60,8 @@ Resources:
             ConfigurationSource: API
             CodeConfigurationValues:
               Runtime: PYTHON_311
-              BuildCommand: pip3 install -r requirements.txt
-              StartCommand: python3 main.py
+              BuildCommand: echo "build phase"
+              StartCommand: pip3 install -r requirements.txt && python3 main.py
               Port: '8000'
               RuntimeEnvironmentVariables:
                 - Name: S3_BUCKET
