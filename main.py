@@ -2,16 +2,12 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from database import init_db
-from routes import projects, datasets, train, inference, sessions, rows
+from routes import train, sessions, rows
 
 app = FastAPI(
     title="Grade Ninja API",
     version="0.1.0",
-    description=(
-        "ML-powered leather grading API. "
-        "Classifies industrial leather hides into grades (B/C/D/E/EN) based on defect analysis.\n\n"
-        "**Note:** All endpoints currently return mocked data for frontend integration."
-    ),
+    description="ML-powered leather grading API. Classifies industrial leather hides based on defect analysis.",
 )
 
 app.add_middleware(
@@ -22,10 +18,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(projects.router)
-app.include_router(datasets.router)
 app.include_router(train.router)
-app.include_router(inference.router)
 app.include_router(sessions.router)
 app.include_router(rows.router)
 
