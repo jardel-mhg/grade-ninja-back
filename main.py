@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from s3_sync import download_all
 from database import init_db
 from routes import train, sessions, rows
 
@@ -22,6 +23,7 @@ app.include_router(train.router)
 app.include_router(sessions.router)
 app.include_router(rows.router)
 
+download_all()
 init_db()
 
 

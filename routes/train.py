@@ -15,6 +15,7 @@ from schemas import (
     PredictResponse,
 )
 from ml.rf import train_random_forest
+from s3_sync import upload_db, upload_model
 
 router = APIRouter(prefix="/api", tags=["Training"])
 
@@ -70,6 +71,10 @@ def start_training(body: TrainRequest):
         (json.dumps(metrics.model_dump()), body.sessionId),
     )
     db.commit()
+
+    # Upload model + DB to S3
+    upload_model(body.sessionId)
+    upload_db()
 
     print(
         f"Training done — accuracy: {result['accuracy']}, "

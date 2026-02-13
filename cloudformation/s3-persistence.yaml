@@ -1,0 +1,92 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Grade Ninja — S3 bucket, IAM role, and App Runner service
+
+Resources:
+  # --- S3 Bucket ---
+  DataBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub grade-ninja-data-${AWS::AccountId}
+      LifecycleConfiguration:
+        Rules:
+          - Id: TransitionToIA
+            Status: Enabled
+            Transitions:
+              - StorageClass: STANDARD_IA
+                TransitionInDays: 30
+
+  # --- IAM Instance Role (gives App Runner access to S3) ---
+  AppRunnerInstanceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: grade-ninja-apprunner-instance-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: tasks.apprunner.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: grade-ninja-s3-access
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:ListBucket
+                  - s3:DeleteObject
+                Resource:
+                  - !GetAtt DataBucket.Arn
+                  - !Sub ${DataBucket.Arn}/*
+
+  # --- App Runner Service ---
+  AppRunnerService:
+    Type: AWS::AppRunner::Service
+    Properties:
+      ServiceName: grade-ninja-api
+      SourceConfiguration:
+        AuthenticationConfiguration:
+          ConnectionArn: arn:aws:apprunner:ap-southeast-2:354918408118:connection/hackaton-grade-ninja-back/840c6d446a984f21af5e660077b737bc
+        AutoDeploymentsEnabled: true
+        CodeRepository:
+          RepositoryUrl: https://github.com/jardel-mhg/grade-ninja-back
+          SourceCodeVersion:
+            Type: BRANCH
+            Value: main
+          CodeConfiguration:
+            ConfigurationSource: API
+            CodeConfigurationValues:
+              Runtime: PYTHON_311
+              BuildCommand: pip install -r requirements.txt
+              StartCommand: python3 main.py
+              Port: '8000'
+              RuntimeEnvironmentVariables:
+                - Name: S3_BUCKET
+                  Value: !Ref DataBucket
+      InstanceConfiguration:
+        Cpu: 1 vCPU
+        Memory: 2 GB
+        InstanceRoleArn: !GetAtt AppRunnerInstanceRole.Arn
+      HealthCheckConfiguration:
+        Protocol: HTTP
+        Path: /
+        Interval: 10
+        Timeout: 5
+        HealthyThreshold: 1
+        UnhealthyThreshold: 5
+
+Outputs:
+  ServiceUrl:
+    Description: App Runner service URL
+    Value: !Sub https://${AppRunnerService.ServiceUrl}
+
+  BucketName:
+    Description: S3 bucket for data persistence
+    Value: !Ref DataBucket
+
+  InstanceRoleArn:
+    Description: IAM instance role ARN
+    Value: !GetAtt AppRunnerInstanceRole.Arn
