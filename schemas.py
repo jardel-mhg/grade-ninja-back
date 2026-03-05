@@ -17,6 +17,12 @@ class TrainRequest(BaseModel):
     featureColumns: list[str] = Field(example=["count_br", "count_ct"])
     grades: list[GradeConfig]
     rows: list[dict]
+    modelType: str = "random_forest"
+
+
+class ShapAnalysis(BaseModel):
+    perClassImportance: dict[str, dict[str, float]]
+    signatures: dict[str, dict[str, float]]
 
 
 class ClassMetrics(BaseModel):
@@ -37,6 +43,7 @@ class TrainResultMetrics(BaseModel):
     targetDistribution: dict[str, int]
     trainSize: int = Field(example=80)
     testSize: int = Field(example=20)
+    shapAnalysis: ShapAnalysis | None = None
 
 
 class TrainResponse(BaseModel):

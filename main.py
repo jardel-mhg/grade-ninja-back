@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from s3_sync import download_all
 from database import init_db
-from routes import train, sessions, rows
+from routes import train, sessions, rows, rules
 
 logger = logging.getLogger("grade-ninja")
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s")
@@ -40,6 +40,7 @@ async def log_request_timing(request: Request, call_next):
 app.include_router(train.router)
 app.include_router(sessions.router)
 app.include_router(rows.router)
+app.include_router(rules.router)
 
 download_all()
 init_db()

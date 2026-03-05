@@ -1,8 +1,12 @@
 import json
+import time
+import logging
 from fastapi import APIRouter, HTTPException
 
 from database import get_db
 from schemas import RowsBulkCreate, RowUpdate
+
+logger = logging.getLogger("grade-ninja")
 
 router = APIRouter(prefix="/api/sessions/{session_id}/rows", tags=["rows"])
 
@@ -43,10 +47,23 @@ def _update_session_counts(db, session_id: int):
 def list_rows(session_id: int):
     _assert_session(session_id)
     db = get_db()
+
+    t0 = time.time()
     rows = db.execute(
         "SELECT * FROM dataset_rows WHERE session_id = ? ORDER BY id", (session_id,)
     ).fetchall()
-    return [_row_to_dict(r) for r in rows]
+    t_query = time.time()
+
+    result = [_row_to_dict(r) for r in rows]
+    t_serialize = time.time()
+
+    logger.info(
+        f"  list_rows session={session_id}: "
+        f"{len(rows)} rows, "
+        f"query={(t_query - t0) * 1000:.0f}ms, "
+        f"serialize={(t_serialize - t_query) * 1000:.0f}ms"
+    )
+    return result
 
 
 @router.post("/bulk", status_code=201)

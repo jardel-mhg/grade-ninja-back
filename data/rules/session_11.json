@@ -1,0 +1,140 @@
+{
+  "grade_order": [
+    "C70",
+    "C40",
+    "C30"
+  ],
+  "fallback": "C30",
+  "rules": {
+    "C70": [
+      [
+        {
+          "feature": "fire_brand_count",
+          "op": "<=",
+          "value": 1.5
+        },
+        {
+          "feature": "clean_pc",
+          "op": ">",
+          "value": 74.5357
+        }
+      ]
+    ],
+    "C40": [
+      [
+        {
+          "feature": "fire_brand_count",
+          "op": "<=",
+          "value": 1.5
+        },
+        {
+          "feature": "clean_pc",
+          "op": "<=",
+          "value": 74.4284
+        }
+      ],
+      [
+        {
+          "feature": "fire_brand_count",
+          "op": ">",
+          "value": 1.5
+        },
+        {
+          "feature": "clean_pc",
+          "op": ">",
+          "value": 71.2536
+        },
+        {
+          "feature": "clean_pc",
+          "op": "<=",
+          "value": 74.2745
+        },
+        {
+          "feature": "fire_brand_count",
+          "op": "<=",
+          "value": 2.5
+        }
+      ],
+      [
+        {
+          "feature": "fire_brand_count",
+          "op": ">",
+          "value": 1.5
+        },
+        {
+          "feature": "clean_pc",
+          "op": ">",
+          "value": 71.2536
+        },
+        {
+          "feature": "clean_pc",
+          "op": ">",
+          "value": 74.2745
+        },
+        {
+          "feature": "clean_pc",
+          "op": ">",
+          "value": 81.0832
+        }
+      ]
+    ],
+    "C30": [
+      [
+        {
+          "feature": "fire_brand_count",
+          "op": ">",
+          "value": 1.5
+        },
+        {
+          "feature": "clean_pc",
+          "op": "<=",
+          "value": 71.2536
+        }
+      ],
+      [
+        {
+          "feature": "fire_brand_count",
+          "op": ">",
+          "value": 1.5
+        },
+        {
+          "feature": "clean_pc",
+          "op": ">",
+          "value": 71.2536
+        },
+        {
+          "feature": "clean_pc",
+          "op": "<=",
+          "value": 74.2745
+        },
+        {
+          "feature": "fire_brand_count",
+          "op": ">",
+          "value": 2.5
+        }
+      ],
+      [
+        {
+          "feature": "fire_brand_count",
+          "op": ">",
+          "value": 1.5
+        },
+        {
+          "feature": "clean_pc",
+          "op": ">",
+          "value": 71.2536
+        },
+        {
+          "feature": "clean_pc",
+          "op": ">",
+          "value": 74.2745
+        },
+        {
+          "feature": "clean_pc",
+          "op": "<=",
+          "value": 81.0832
+        }
+      ]
+    ]
+  }
+}
